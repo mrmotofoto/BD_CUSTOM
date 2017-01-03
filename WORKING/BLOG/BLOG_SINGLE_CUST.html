@@ -1,0 +1,33 @@
+<!-- This is found in Members/Membership Features -->
+
+<!-- DESIGN PAGE DESIGN TAB -->
+
+
+
+<div style="margin-top:-30px;" class="col-lg-12 font-sm bpad nohpad">
+    <?php
+      echo '<span class="postItem postData" data-userid="'.$post[user_id].'" data-datatype="'.$post[data_type].'" data-dataid="'.$post[data_id].'" data-postid="'.$post[post_id].'"></span>';
+	  echo widget("Bootstrap Theme - Display - Print Button",'',$w[website_id],$w);
+      echo widget("Bootstrap Theme - Display - Add to Favorites Button",'',$w[website_id],$w);
+    ?>    
+      
+</div>
+<h1 style="font-size:50px;"><?=$post[post_title]?></h1>
+<?php if ($post[post_category] != "") { ?> 
+By <a href="/<?=$dc[data_filename]?>?category[]=<?=$post[post_category]?>"><?php echo $post[post_author]; ?></a> 
+<?php }   ?>
+ <p><span class="glyphicon glyphicon-time"></span>Posted On - <? if ($post[post_start_date] != "") { echo transformDate($post[post_start_date],"QB"); } else { echo transformDate($post[post_live_date],"QB"); }?></p>
+ 
+<? if ($post[post_image]!="") { ?>
+    <img class="img-responsive" alt="<?=$post[post_title]?>" title="<?=$post[post_title]?>" src="<?=str_replace("'","",$post[post_image])?>" />
+<? }  ?>
+<br>
+<br>
+<? if ($post[post_content] != "") { ?>
+<?=$post[post_content]?>
+<? } ?>
+<? if ($tags!="") { ?><div class="vpad tags"><?=$tags?></div><? } ?>
+<div class="clearfix"></div>
+
+
+
