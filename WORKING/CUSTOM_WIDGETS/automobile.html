@@ -1,0 +1,200 @@
+<!-- This is found in WIDGET MANAGER -->
+
+<!-- Bootstrap Theme - Display - Recent Automobile -->
+
+<?php
+/*
+ * Widget Name: Bootstrap Theme - Display - Recent Properties
+ * Short Description: Enables the Streaming of Particular Membership Feature Posts.
+ * Version: 1.0
+ * Developed By: Luis Alvarado
+ * Collaborators: Fernando Alvarado, Alex Cruz
+ */
+$featureUrl = 'automobile'; // Use to Set the name of the Membership Feature this Streaming Widget will use. Can be controlled in the Design Settings.
+$maxItems = $wa[custom_174]; // Maximum amount of streaming items shown. Default is 4. Can be controlled in the Design Settings.
+$hidePostsWithoutPhotos = $wa[custom_186]; // This will show or hide posts if they do not have photos. Default is true. Can be controlled in the Design Settings.
+$onlyActiveMembers = true; // Show or Hide results from Active Members Only. Default is true.
+$searchablePostsOnly = true; // Show posts even if they are not searchable. Useful for Membership Levels that do not want to show in the search results but want to show their posts in the streaming widgets, similar to how an admin account would work.
+$sortingOrder = 'DESC'; // Sorting Order in which results will be shown. Values supported are DESC (Descending) & ASC (Ascending). Default is DESC.
+$hideEmptyStream = true; // This hides the feature if there are no posts to show in it. Default is true.
+$enableUserMetaText = true; // If enabled, post Items will include the values in the Users Meta Table (eg: Beds and Bathrooms). Default is true.
+
+if (empty($featureUrl)) {
+    $featureUrl = 'properties';
+}
+if (empty($maxItems)) {
+    $maxItems = 4;
+}
+
+if(is_numeric($featureUrl)){
+    $where = "data_id = ".$featureUrl;  
+}else{
+    $where = "data_filename LIKE '".$featureUrl."'";
+}
+
+// Query that grabs information from the Membership Feature selected
+$membershipFeaturesSQL = mysql($w[database], "SELECT 
+        data_id, data_filename 
+    FROM 
+        data_categories 
+    WHERE 
+        ".$where." 
+    AND 
+        data_active = '1' 
+    LIMIT 
+        1");
+$features = mysql_fetch_assoc($membershipFeaturesSQL);
+$sqlSelectParameters = array(
+    "upg.group_id",
+    "upg.group_name",
+    "upg.group_desc",
+    "upg.property_beds",
+    "upg.property_baths",
+    "upg.property_status",
+    "upg.group_filename",
+    " IFNULL((SELECT CONCAT('/photos/display/',up.file) AS group_image FROM `users_portfolio` AS up WHERE up.group_id = upg.group_id ORDER BY up.order ASC LIMIT 1), 0) AS group_image"
+);
+$sqlTablesParameters = array(
+    "`users_portfolio_groups` AS upg",
+    "`users_data` AS ud",
+    "`subscription_types` AS st"
+);
+$sqlWhereParameters = array(
+    "upg.user_id = ud.user_id",
+    "ud.subscription_id = st.subscription_id",
+    "upg.data_id = '".$features[data_id]."'",
+    "upg.group_name != ''",
+    "upg.group_status = '1'"
+);
+$sqlGroupByParameters = array();
+$sqlHavingParameters = array();
+$sqlOrderByParameters = array(
+    "upg.group_id ".$sortingOrder
+);
+$sqlLimitParameters = array(
+    $maxItems
+);
+if ($onlyActiveMembers) {
+    $sqlWhereParameters[] = "ud.active = '2'";
+}
+if ($hidePostsWithoutPhotos) {
+    $sqlHavingParameters[] = "group_image != '0'";
+}
+if ($searchablePostsOnly == true) {
+    $sqlWhereParameters[] = "st.searchable = '1'";
+}
+
+/* -------------------------- Code That Constructs the SQL statement ------------------------------------- */
+if (count($sqlSelectParameters) > 0) {
+    $sql .= "SELECT ";
+    $sql .= implode(", ",$sqlSelectParameters);
+}
+if (count($sqlTablesParameters) > 0) {
+    $sql .= " FROM ";
+    $sql .= implode(", ",$sqlTablesParameters);
+}
+if (count($sqlWhereParameters) > 0) {
+    $sql .= " WHERE ";
+    $sql .= implode(" AND ",$sqlWhereParameters);
+}
+if (count($sqlGroupByParameters) > 0) {
+    $sql .= " GROUP BY ";
+    $sql .= implode(", ",$sqlGroupByParameters);
+}
+if (count($sqlHavingParameters) > 0) {
+    $sql .= " HAVING ";
+    $sql .= implode(" AND ",$sqlHavingParameters);
+}
+if (count($sqlOrderByParameters) > 0) {
+    $sql .= " ORDER BY ";
+    $sql .= implode(", ",$sqlOrderByParameters);
+}
+if (count($sqlLimitParameters) > 0) {
+    $sql .= " LIMIT ";
+    $sql .= implode(", ",$sqlLimitParameters);
+}
+/* -------------------------- END Code That Constructs the SQL statement ------------------------------------- */
+$featureResults = mysql($w[database], $sql);
+$featureNum = mysql_num_rows($featureResults);
+$showFeature = true;
+
+if ($hideEmptyStream == true) {
+
+    if ($featureNum > 0) {
+        $showFeature = true;
+
+    } else {
+        $showFeature = false;
+    }
+}
+
+if ($showFeature == true) { ?>
+    <div class="clearfix clearfix-lg"></div>
+    <div class="content-container">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="nomargin sm-text-center bold">Recent AutoMobiles
+                        <a href="/<?php echo $features[data_filename];?>" class="pull-right hidden-xs btn btn-info">View All</a>
+                    </h2>
+                    <hr>
+                </div>
+                <?php
+                while ($post = mysql_fetch_array($featureResults)) {
+
+                    foreach ($post as $key => $value) {
+                        $post[$key] = stripslashes($value);
+                    }    
+                    $post[group_name] = stripslashes($post[group_name]);
+                    
+                    if (!$enableUserMetaText) {
+                        $propertyText = '';
+
+                    } else {
+                        $propertyText = '<b>'.floor($post[property_beds]).' Beds - '.$post[property_baths].' Baths - '.$post[property_status].'</b>';
+                    }
+                    if (strlen($post[group_name]) > 40 ) {
+                        $postTitle = substr($post[group_name],0,40).'...';
+
+                    } else {
+                        $postTitle = $post[group_name];
+                    }
+                    if (strlen($post[group_location]) > 50 ) {
+                        $postLocation = substr($post[group_location],0,50).'...';
+
+                    } else {
+                        $postLocation = $post[group_location];
+                    }
+                    if (empty($post[group_image])) {
+                        $postImageFile = '/images/NoImageAvailable.png';
+
+                    } else {
+                        $postImageFile = $post[group_image];
+                    } ?>
+                    <div class="col-sm-6 col-md-3 text-center bmargin">
+                        <div class="pic">
+                            <img src="<?php echo $postImageFile;?>" class="pic-image" alt="<?php echo $post[group_name];?>"/>
+                            <span class="pic-caption bottom-to-top">
+                                <h3 class="pic-title"><?php echo $postTitle;?></h3>
+                                <p>
+                                    <?php 
+                                    echo $propertyText;
+                                    if ($post[group_location] != NULL) { 
+                                        echo '<br><i class="fa fa-map-marker"></i>'.$postLocation;
+                                    } ?>
+                                </p>
+                                <hr>
+                                <a href="/<?php echo $post[group_filename];?>" class="btn btn-warning">View Details</a>
+                            </span>
+                        </div>
+                    </div>
+                <?php } ?>
+                <div class="clearfix"></div>
+                <div class="col-md-6">
+                    <a href="<?php echo $features[data_filename];?>" class="btn btn-lg btn-danger btn-block visible-xs-block">View All</a>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+<?php } ?>
