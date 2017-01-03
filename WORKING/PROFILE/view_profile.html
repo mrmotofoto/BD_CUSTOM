@@ -1,0 +1,60 @@
+<h2 class="xs-text-center"><?=$user[full_name]?> <?=plural($Label[service])?></h2>
+
+<div class="row">
+  <div class="col-md-6">
+    <br>
+    <? $photoPath = $user[photo_file]; ?>
+  <img style="width:100%;" class="img-rounded" src="<?=$photoPath?>">
+  </div>
+  <div class="col-md-6">
+
+  </div>
+</div>
+<hr>
+<style>
+#tableContainer {
+margin-top:20px;
+
+}
+</style>
+<div id="tableContainer">
+<h2>Contact Info</h2>
+  <table class="table table-striped">
+      <tbody>
+      
+      <!-- CHECKS FOR TABLE INFO -->
+        <?php if($user[full_name] != '') { ?>
+          <tr>
+            <td><strong>Name</strong></td>
+            <td><?php echo $user[full_name];?></td>
+          </tr>
+       <? } ?>
+       
+        <?php if($user[services] != '') { ?>    
+         <tr>
+          <td><strong>Profession</strong></td>
+          <td><?php echo $user[profession_name];?></td>
+         </tr>
+       <? } ?>
+       
+        <?php if($user[address1] != '') { ?>         
+          <tr>
+            <td><strong>Address</strong></td>
+            <td><?php echo $user[address1];?></td>
+          </tr>
+        <? } ?>
+        <?php if($user[location] != '') { ?>         
+          <tr>
+            <td><strong>City - State</strong></td>
+            <td><?php echo $user[location];?></td>
+          </tr>
+        <? } ?>
+        
+      <!-- END CHECKS FOR TABLE INFO -->
+      
+      </tbody>
+    </table>
+</div>
+
+<pre>
+<?php print_r($user); ?>

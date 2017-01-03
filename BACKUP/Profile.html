@@ -1,0 +1,59 @@
+<!-- This is found in Members/Membership Features -->
+
+<!-- Member Profile Page Settings -->
+
+
+<!-- PAGE HEADER TAB -->
+<h2 class="xs-text-center"><?=$user[full_name]?> <?=plural($Label[service])?></h2>
+
+<div class="row">
+  <div class="col-md-6">
+    <li style="margin-bottom:0px;" class="list-group-item">
+        Phone Number: <? echo $user[phone_number] ?>
+    </li> 
+    <li style="margin-bottom:0px;" class="list-group-item">
+        Hobbies: <? echo $user[about_me] ?>
+    </li> 
+     <li style="margin-bottom:0px" class="list-group-item">
+        Hours Of Operation: <? echo $user[rep_matters] ?>
+    </li>
+      <li style="margin-bottom:0px" class="list-group-item">
+        Favorite Pet: <? echo $user[favpet] ?>
+    </li>
+    <br>
+    <? $photoPath = $user[photo_file]; ?>
+	<img style="width:100%;" class="img-rounded" src="<?=$photoPath?>">
+  </div>
+  <div class="col-md-6">
+ 	<?php 
+ if($_COOKIE[userid] == 23) {
+ echo "ADMIN IS WATCHING YOU!!!";
+ } else {
+ 	echo "Everyone else can see this page!!!";
+ }
+    ?>
+  </div>
+</div>
+
+
+<!-- PAGE LOOP -->
+<? $total_reviews=totalReviews($user[user_id],$s[service_id],$w); ?>
+<div class="table-view-group clearfix">
+	<li class="col-sm-4 xs-bmargin">
+		<a href="/<?=$s[filename]?>" title="<?=$s[name]?> <?=plural($user[profession])?>"><?=$s[name]?></a>
+	</li>
+	<?php $MemberSub=getSubscription($user[subscription_id],$w);if ($MemberSub[receive_messages] != 1) { ?>
+		<li class="col-sm-8">
+			<span intemdrop="name">
+				<a title="Request <?=$Label[quote_estimate]?> For <?=$s[name]?>" href="/<?=$user[filename]?>/request?service=<?=$s[name]?>" class="btn btn-primary">Request <?=$Label[quote_estimate]?> &raquo;</a>
+			</span>
+		</li>
+	<? } ?>
+</div>
+
+
+<ul class="list-group">
+
+ MAKE A TABLE HERE ABOUT USER INFO
+  
+</ul>
