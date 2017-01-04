@@ -14,7 +14,7 @@
 </div>
 <h1 style="font-size:50px;"><?=$post[post_title]?></h1>
 <?php if ($post[post_category] != "") { ?> 
-By <a href="/<?=$dc[data_filename]?>?category[]=<?=$post[post_category]?>"><?php echo $post[post_author]; ?></a> 
+By <a href="/<?=$user[filename]?>" title="Posted By: <?=$user[full_name]?>"><?=$user[full_name]?></a> 
 <?php }   ?>
  <p><span class="glyphicon glyphicon-time"></span>Posted On - <? if ($post[post_start_date] != "") { echo transformDate($post[post_start_date],"QB"); } else { echo transformDate($post[post_live_date],"QB"); }?></p>
  
